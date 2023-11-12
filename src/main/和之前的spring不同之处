@@ -1,0 +1,4 @@
+以前的spring是需要到test文件里面手动启动 因此不需要web.xml
+现在是启动tomcat tomcat读取web.xml
+调用servlet servlet调用spring容器
+因此需要两个配置文件

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<beans>
+    <!--指定要扫描的基本包以及子包的java类-->
+    <component-scan base-package="controller,service"></component-scan>
+<!--    最开始的时候 我们是用手写bean来进行配置-->
+<!--    然后换成@component来进行配置-->
+<!--    现在是web.xml扫描servlet servlet加载来对扫描的包下进行配置-->
+</beans>
