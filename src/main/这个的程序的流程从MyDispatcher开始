@@ -1,0 +1,10 @@
+初始化是走init
+当初始化结束以后 每当我们有不同的请求 则走入不同的doGet或者doPost方法
+
+当走入doGet或者doPost方法以后
+我们会通过 executeDispatch 来解析url 从而拿到对应封装好的handler 通过反射执行之前的方法
+
+而handler 是在初始化的时候 通过 HandlerMapping 来封装的
+  private void initHandlerMapping()
+  这个方法不是在context那个类里面的 这个是在DispatcherServlet里面的
+  但是这个方法是在init（）方法里面调用的
