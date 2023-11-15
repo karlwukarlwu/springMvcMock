@@ -41,5 +41,14 @@ public class MonsterServiceImpl implements MonsterService {
         }
         return findMonsters;
     }
+    @Override
+    public boolean login(String name) {
+        //实际上会到DB验证->这里老师模拟
+        if ("白骨精".equals(name)) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
 }

@@ -13,4 +13,7 @@ public interface MonsterService {
     public List<Monster> listMonster();
     public List<Monster> findMonsterByName(String name);
 
+    public boolean login(String name);
+
+
 }

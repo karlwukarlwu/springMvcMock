@@ -1,8 +1,10 @@
 package mvc.servlet;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import mvc.annotation.Controller;
 import mvc.annotation.RequestMapping;
 import mvc.annotation.RequestParam;
+import mvc.annotation.ResponseBody;
 import mvc.context.MyWebApplicationContext;
 import mvc.handler.MyHandler;
 
@@ -12,6 +14,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -165,6 +168,8 @@ public class MyDispatcherServlet extends HttpServlet {
                 }
 //                将参数放入到params数组中（刚刚放的是HttpServletRequest和HttpServletResponse)
 //                拿到http的请求参数
+//                这里就可以开始处理中文乱码问题了
+                request.setCharacterEncoding("utf-8");
                 Map<String, String[]> parameterMap = request.getParameterMap();
 //                遍历参数
 //                为什么 entry是string string[]
@@ -203,7 +208,50 @@ public class MyDispatcherServlet extends HttpServlet {
                 }
 //                 这里专门编写一个方法，得到请求的参数对应的是第几个形参
 //          invoke的第三个参数为可变参数 可以传入数组或者多个值
-                handler.getMethod().invoke(handler.getController(), params);
+//          阶段7 这里引入视图解析器 因为反射执行的方法实际上是可以拿到返回值的
+//                实际上视图解析器是外部的一个类 这里简化了
+//                也就是之前返回的网页的位置
+//                这里可以拿到controller那里返回的东西
+//                  return "/login_ok.jsp";
+//          阶段八 这里引入json返回
+                Object result = handler.getMethod().invoke(handler.getController(), params);
+//                先判断类型
+                if (result instanceof String) {
+                    String viewName = (String) result;
+                    if(viewName.contains(":")){//说明你返回的String 结果forward:/login_ok.jsp 或者 redirect:/xxx/xx/xx.xx
+                        String viewType = viewName.split(":")[0];//forward | redirect
+                        String viewPage = viewName.split(":")[1];//是你要跳转的页面名
+                        //判断是forward 还是 redirect
+                        if("forward".equals(viewType)) {//说明你希望请求转发
+                            request.getRequestDispatcher(viewPage)
+                                    .forward(request,response);
+                        } else if("redirect".equals(viewType)) {//说明你希望重定向
+                            response.sendRedirect(viewPage);
+                        }
+                    } else {//默认是请求转发
+                        request.getRequestDispatcher(viewName)
+                                .forward(request,response);
+                    }
+
+                }else if(result instanceof ArrayList) {//其实也可以是别的 因为我们网页写的是arraylist
+//                    实际逻辑不限于Arraylist
+
+                    Method method = handler.getMethod();
+//                    如果你注解了json
+                    if(method.isAnnotationPresent(ResponseBody.class)) {
+
+                        ObjectMapper objectMapper = new ObjectMapper();
+                        String resultJson =
+                                objectMapper.writeValueAsString(result);
+
+                        response.setContentType("text/html;charset=utf-8");
+                        //这里老师简单的处理，就直接返回
+                        PrintWriter writer = response.getWriter();
+                        writer.write(resultJson);
+                        writer.flush();
+                        writer.close();
+                    }
+                }
 
 
             } catch (Exception e) {
@@ -259,4 +307,7 @@ public class MyDispatcherServlet extends HttpServlet {
         System.out.println("目标方法的形参列表=" + parametersList);
         return parametersList;
     }
+
+//    阶段7 视图解析器
+//    这里简化了放到了一起
 }

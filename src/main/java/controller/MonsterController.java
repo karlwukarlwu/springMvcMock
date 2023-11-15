@@ -1,10 +1,7 @@
 package controller;
 
 import entity.Monster;
-import mvc.annotation.AutoWired;
-import mvc.annotation.Controller;
-import mvc.annotation.RequestMapping;
-import mvc.annotation.RequestParam;
+import mvc.annotation.*;
 import service.MonsterService;
 
 import javax.servlet.http.HttpServletRequest;
@@ -81,6 +78,35 @@ public class MonsterController {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
 
+    @RequestMapping("/monster/login")
+    public String login(HttpServletRequest request,
+                        HttpServletResponse response,
+                        String mName) {
+
+        System.out.println("--接收到mName---" + mName);
+        //将mName设置到request域
+        request.setAttribute("mName", mName);
+        boolean b = monsterService.login(mName);
+        if (b) {//登录成功!
+            //return "forward:/login_ok.jsp";
+            //测试重定向
+            //return "redirect:/login_ok.jsp";
+            //测试默认的方式-forward
+            return "/login_ok.jsp";
+
+        } else {//登录失败
+            return "forward:/login_error.jsp";
+        }
+    }
+    //返回json格式数据
+    @RequestMapping("/monster/list/json")
+    @ResponseBody
+    public List<Monster> listMonsterByJson(HttpServletRequest request,
+                                           HttpServletResponse response) {
+
+        List<Monster> monsters = monsterService.listMonster();
+        return monsters;
     }
 }

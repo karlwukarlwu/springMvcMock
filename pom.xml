@@ -42,6 +42,12 @@
           <version>RELEASE</version>
           <scope>compile</scope>
       </dependency>
+      <!--引入jackson 使用他的工具类可以进行json操作 -->
+      <dependency>
+          <groupId>com.fasterxml.jackson.core</groupId>
+          <artifactId>jackson-databind</artifactId>
+          <version>2.12.4</version>
+      </dependency>
   </dependencies>
 
     <build>
